@@ -1,201 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scratch-like Code Blocks</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        
-        #workspace {
-            flex: 1;
-            background-color: white;
-            position: relative;
-        }
-        
-        #blocks-palette {
-            width: 250px;
-            background-color: #e9e9e9;
-            padding: 10px;
-            overflow-y: auto;
-            border-right: 1px solid #ccc;
-        }
-        
-        .block-category {
-            margin-bottom: 15px;
-        }
-        
-        .category-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        
-        .block {
-            padding: 8px;
-            margin: 5px 0;
-            background-color: #fff;
-            border-radius: 4px;
-            cursor: move;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            font-size: 14px;
-        }
-        
-        .event-block {
-            background-color: #ffbf00;
-            color: #000;
-        }
-        
-        .function-block {
-            background-color: #ff6680;
-            color: #fff;
-        }
-        
-        .control-block {
-            background-color: #ffab19;
-            color: #000;
-        }
-        
-        .hat-block {
-            border-radius: 50px 50px 5px 5px;
-            padding-top: 15px;
-            margin-top: 15px;
-        }
-        
-        #code-area {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            min-width: 300px;
-            min-height: 200px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            padding: 15px;
-        }
-        
-        .code-block {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            border-left: 4px solid #ccc;
-        }
-        
-        .event-code {
-            border-left-color: #ffbf00;
-        }
-        
-        .function-code {
-            border-left-color: #ff6680;
-        }
-        
-        .control-code {
-            border-left-color: #ffab19;
-        }
-        
-        .indent {
-            margin-left: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Mini Scratch‑Style Code Editor</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+    #editor {
+      flex: 1;
+      background: #f9f9f9;
+      position: relative;
+      overflow: auto;
+      padding: 10px;
+    }
+    #palette {
+      width: 240px;
+      background: #e0e0e0;
+      padding: 10px;
+      overflow-y: auto;
+      border-left: 2px solid #ccc;
+    }
+    .block {
+      background: #fff;
+      border: solid 1px #888;
+      border-radius: 4px;
+      margin: 4px 0;
+      padding: 6px;
+      cursor: grab;
+      user-select: none;
+    }
+    .block.dragging {
+      opacity: 0.5;
+    }
+  </style>
 </head>
 <body>
-    <div id="blocks-palette">
-        <div class="block-category">
-            <div class="category-title">Event Listeners</div>
-            <div class="block hat-block event-block" draggable="true" data-type="event">ListenForChat</div>
-            <div class="block hat-block event-block" draggable="true" data-type="event">ListenForPlayer</div>
-            <div class="block hat-block event-block" draggable="true" data-type="event">ListenForInstantiation</div>
-            <div class="block hat-block event-block" draggable="true" data-type="event">ListenForInput</div>
-        </div>
-        
-        <div class="block-category">
-            <div class="category-title">Functions</div>
-            <div class="block function-block" draggable="true" data-type="function">OnChatMessage</div>
-            <div class="block function-block" draggable="true" data-type="function">OnLocalTakeDamage</div>
-            <div class="block function-block" draggable="true" data-type="function">OnPlayerJoin</div>
-            <div class="block function-block" draggable="true" data-type="function">OnPlayerLeave</div>
-        </div>
-        
-        <div class="block-category">
-            <div class="category-title">Control</div>
-            <div class="block control-block" draggable="true" data-type="control">if</div>
-            <div class="block control-block" draggable="true" data-type="control">else</div>
-            <div class="block control-block" draggable="true" data-type="control">repeat</div>
-            <div class="block control-block" draggable="true" data-type="control">while</div>
-        </div>
-        
-        <div class="block-category">
-            <div class="category-title">Variables</div>
-            <div class="block" draggable="true" data-type="variable">message</div>
-            <div class="block" draggable="true" data-type="variable">sender</div>
-        </div>
-    </div>
-    
-    <div id="workspace">
-        <div id="code-area">
-            <!-- Example code structure -->
-            <div class="code-block event-code">ListenForChat</div>
-            <div class="code-block function-code">OnChatMessage</div>
-            <div class="code-block control-code indent">if message is "{msg}" then</div>
-            <div class="code-block indent" style="margin-left: 40px;">print("this is a message")</div>
-            <div class="code-block control-code indent">end</div>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const blocks = document.querySelectorAll('.block');
-            const codeArea = document.getElementById('code-area');
-            
-            // Make blocks draggable
-            blocks.forEach(block => {
-                block.addEventListener('dragstart', function(e) {
-                    e.dataTransfer.setData('text/plain', block.textContent);
-                    e.dataTransfer.setData('block-type', block.getAttribute('data-type'));
-                });
-            });
-            
-            // Allow dropping in code area
-            codeArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-            });
-            
-            codeArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                const blockText = e.dataTransfer.getData('text/plain');
-                const blockType = e.dataTransfer.getData('block-type');
-                
-                const newBlock = document.createElement('div');
-                newBlock.className = 'code-block';
-                
-                // Add appropriate class based on block type
-                if (blockType === 'event') {
-                    newBlock.classList.add('event-code');
-                } else if (blockType === 'function') {
-                    newBlock.classList.add('function-code');
-                } else if (blockType === 'control') {
-                    newBlock.classList.add('control-code');
-                }
-                
-                // Handle hat blocks (events) differently
-                if (blockType === 'event') {
-                    newBlock.classList.add('hat-block');
-                }
-                
-                newBlock.textContent = blockText;
-                
-                // Add to code area
-                codeArea.appendChild(newBlock);
-            });
+  <div id="editor"></div>
+
+  <div id="palette">
+    <h3>Events</h3>
+    <div class="block" draggable="true" data-type="ListenForChat">ListenForChat</div>
+    <div class="block" draggable="true" data-type="ListenForPlayer">ListenForPlayer</div>
+    <div class="block" draggable="true" data-type="ListenForInstantiation">ListenForInstantiation</div>
+    <div class="block" draggable="true" data-type="ListenForInput">ListenForInput</div>
+    
+    <h3>Functions</h3>
+    <div class="block" draggable="true" data-type="OnChatMessage">OnChatMessage</div>
+    <div class="block" draggable="true" data-type="OnLocalTakeDamage">OnLocalTakeDamage</div>
+    <!-- add more from API... -->
+
+    <h3>Logic</h3>
+    <div class="block" draggable="true" data-type="if">if</div>
+    <div class="block" draggable="true" data-type="else if">else if</div>
+    <div class="block" draggable="true" data-type="else">else</div>
+  </div>
+
+  <script>
+    let dragged = null;
+
+    document.querySelectorAll('.block').forEach(b => {
+      b.addEventListener('dragstart', e => {
+        dragged = b.cloneNode(true);
+        dragged.classList.add('dragging');
+      });
+    });
+
+    const editor = document.getElementById('editor');
+    editor.addEventListener('dragover', e => e.preventDefault());
+    editor.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragged) {
+        const rect = editor.getBoundingClientRect();
+        // Position the block where dropped:
+        dragged.style.position = 'absolute';
+        dragged.style.left = (e.clientX - rect.left - 20) + 'px';
+        dragged.style.top = (e.clientY - rect.top - 10) + 'px';
+        dragged.classList.remove('dragging');
+        dragged.setAttribute('draggable', 'true');
+        // allow repositioning
+        dragged.addEventListener('dragstart', evt => {
+          dragged = evt.target;
         });
-    </script>
+        editor.appendChild(dragged);
+        dragged = null;
+      }
+    });
+  </script>
+
 </body>
 </html>
